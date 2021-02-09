@@ -119,10 +119,18 @@ def parameterized_test(*inst):
     '''
     def _do_register(cls):
         _validate_test(cls)
-        if not cls.param_space.is_empty():
-            raise ValueError(
-                f'{cls.__qualname__!r} is already a parameterized test'
-            )
+
+        # Create the parameter sets
+        params = [set() for _ in inst[0]]
+        for args in inst:
+            for i, value in enumerate(args):
+                params[i].add(value)
+
+        cls._rfm_local_param_space.clear()
+        for i, values in enumerate(params):
+            cls.parameter(f'_rfm_decorated_param_{i}', values)
+
+        cls._rfm_param_space.update(cls)
 
         for args in inst:
             _register_test(cls, args)

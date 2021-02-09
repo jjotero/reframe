@@ -48,9 +48,15 @@ class LocalNamespace(metaclass=abc.ABCMeta):
         else:
             self._raise_namespace_clash(name)
 
+    def __contains__(self, value):
+        self._namespace.__contains__(value)
+
     @abc.abstractmethod
     def _raise_namespace_clash(self, name):
         '''Raise an error if there is a namespace clash.'''
+
+    def clear(self):
+        self._namespace = {}
 
 
 class Namespace(metaclass=abc.ABCMeta):

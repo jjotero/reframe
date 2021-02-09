@@ -150,6 +150,16 @@ class ParamSpace(namespaces.Namespace):
                 p.filter_params(self.params.get(name, ())) + p.values
             )
 
+    def update(self, cls):
+        # Update the parameter space with new values that may have been added
+        # to the local parameter space after the class creation.
+        # This is used by the parameterized_test decorator to adapt the
+        # old parameter syntax into using this new framework.
+        self.extend(cls)
+
+        # Reset the unique iterator
+        self.__unique_iter = iter(self)
+
     def inject(self, obj, cls=None, use_params=False):
         '''Insert the params in the regression test.
 
@@ -229,6 +239,9 @@ class ParamSpace(namespaces.Namespace):
 
     def __getitem__(self, key):
         return self.params.get(key, ())
+
+    def __contains__(self, value):
+        return self.params.__contains__(value)
 
     def is_empty(self):
         return self.params == {}
