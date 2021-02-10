@@ -120,20 +120,20 @@ def parameterized_test(*inst):
     def _do_register(cls):
         _validate_test(cls)
 
-        # Create the parameter sets
-        params = [set() for _ in inst[0]]
-        for args in inst:
-            for i, value in enumerate(args):
-                params[i].add(value)
-
+        # Create a fresh local parameter space
         cls._rfm_local_param_space.clear()
-        for i, values in enumerate(params):
-            cls.parameter(f'_rfm_decorated_param_{i}', values)
 
-        cls._rfm_param_space.update(cls)
+        # Insert len(inst) dummy parameters to make this decorator compatible
+        # with the directive-base parametrization.
+        cls.parameter(f'_rfm_decorated_param', range(len(inst)))
 
-        for args in inst:
-            _register_test(cls, args)
+        # Update the parameter space
+        cls.param_space.update(cls)
+
+        # Register all the tests
+        block = len(cls.param_space)/len(inst)
+        for i, _ in enumerate(cls.param_space):
+            _register_test(cls, inst[int(i/block)])
 
         return cls
 
