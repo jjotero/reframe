@@ -240,8 +240,5 @@ class ParamSpace(namespaces.Namespace):
     def __getitem__(self, key):
         return self.params.get(key, ())
 
-    def __contains__(self, value):
-        return self.params.__contains__(value)
-
     def is_empty(self):
         return self.params == {}
