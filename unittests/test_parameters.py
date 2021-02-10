@@ -6,9 +6,19 @@
 
 import pytest
 import inspect
-
+import sys
 
 import reframe as rfm
+
+
+@pytest.fixture
+def current_module():
+    mod = sys.modules[globals()['__name__']]
+    yield mod
+    try:
+        del mod.__rfm_test_registry
+    except AttributeError:
+        pass
 
 
 class NoParams(rfm.RunOnlyRegressionTest):
@@ -149,13 +159,12 @@ def test_register_abstract_test():
             pass
 
 
-def test_simple_test_decorator():
+def test_simple_test_decorator(current_module):
     @rfm.simple_test
     class MyTest(ExtendParams):
         pass
 
-    mod = inspect.getmodule(MyTest)
-    tests = mod._rfm_gettests()
+    tests = current_module._rfm_gettests()
     assert len(tests) == 8
     for test in tests:
         assert test.P0 is not None
@@ -163,12 +172,19 @@ def test_simple_test_decorator():
         assert test.P2 is not None
 
 
-def test_parameterized_test_is_incompatible():
-    with pytest.raises(ValueError):
-        @rfm.parameterized_test(['var'])
-        class MyTest(TwoParams):
-            def __init__(self, var):
-                pass
+def test_parameterized_test_decorator(current_module):
+    @rfm.parameterized_test(['1'], ['3'])
+    class MyTest(ExtendParams):
+        def __init__(self, decorated_param):
+            pass
+
+    tests = current_module._rfm_gettests()
+    assert len(tests) == 16
+    for test in tests:
+        assert test.P0 is not None
+        assert test.P1 is not None
+        assert test.P2 is not None
+        assert hasattr(test, '_rfm_decorated_param')
 
 
 def test_param_space_clash():

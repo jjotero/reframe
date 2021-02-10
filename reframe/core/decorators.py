@@ -95,6 +95,12 @@ def simple_test(cls):
     '''
     _validate_test(cls)
 
+    # Pop the decorated param if present.
+    if ('_rfm_decorated_param' in cls.param_space.params):
+        cls.param_space.params.pop('_rfm_decorated_param')
+        cls._rfm_local_param_space.clear()
+        cls.param_space.update(cls)
+
     for _ in cls.param_space:
         _register_test(cls)
 
