@@ -20,7 +20,7 @@ jobs:
     - name: Generic Unittests
       if: matrix.python-version != '3.8'
       run: |
-        ./test_reframe.py
+        ./test_reframe.py -v
     - name: Generic Unittests and Coverage Report
       if:  matrix.python-version == '3.8'
       run: |

@@ -767,7 +767,6 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
                     )
 
         # Attach the hooks to the pipeline stages
-        print(cls._rfm_pipeline_hooks)
         for stage in _PIPELINE_STAGES:
             cls._add_hooks(stage)
 
@@ -1062,6 +1061,7 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
         self.logger.debug('Setting up test paths')
         try:
             runtime = rt.runtime()
+            print(self.name, runtime.stage_prefix)
             self._stagedir = runtime.make_stagedir(
                 self.current_system.name, self._current_partition.name,
                 self._current_environ.name, self.name
