@@ -876,8 +876,12 @@ def test_restore_session(report_file, make_runner,
     assert new_report['runs'][0]['testcases'][0]['name'] == 'T1'
 
     # Remove the test case dump file and retry
-    os.remove(tmp_path / 'stage' / 'generic' / 'default' /
-              'builtin' / 'T4' / '.rfm_testcase.json')
+    try:
+        os.remove(tmp_path / 'stage' / 'generic' / 'default' /
+                  'builtin' / 'T4' / '.rfm_testcase.json')
+    except OSError:
+        import reframe.utility as util
+        print(util.repr(restored_cases))
 
     with pytest.raises(ReframeError, match=r'could not restore testcase'):
         report.restore_dangling(testgraph)
