@@ -5,6 +5,7 @@
 
 import contextlib
 import functools
+import re
 
 import reframe.utility as util
 
@@ -31,11 +32,11 @@ def attach_hooks(hooks):
         @functools.wraps(func)
         def _fn(obj, *args, **kwargs):
             for h in select_hooks(obj, 'pre_'):
-                h(obj)
+                getattr(obj, h.__name__)()
 
             func(obj, *args, **kwargs)
             for h in select_hooks(obj, 'post_'):
-                h(obj)
+                getattr(obj, h.__name__)()
 
         return _fn
 
@@ -133,3 +134,17 @@ class HookRegistry:
 
     def __repr__(self):
         return repr(self.__hooks)
+
+    @property
+    def stages(self):
+        '''Return a set with the pipeline stages present in the hooks.'''
+        stages = set()
+        for h in self.__hooks:
+            stages.add(
+                [x[0] for x in [
+                    re.findall(fr'\A{x}(\w*)',  h)
+                    for x in ['pre_', 'post_']
+                ] if x][0]
+            )
+
+        return stages

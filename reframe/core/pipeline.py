@@ -737,6 +737,12 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
     def __new__(cls, *args, _rfm_use_params=False, **kwargs):
         obj = super().__new__(cls)
 
+        # Update the pipeline stages and attach the hooks
+        cls._rfm_pipeline_stages = set(_PIPELINE_STAGES).union(
+            cls._rfm_pipeline_hooks.stages
+        )
+        cls._add_hooks(cls._rfm_pipeline_stages)
+
         # Insert the var & param spaces
         cls._rfm_var_space.inject(obj, cls)
         cls._rfm_param_space.inject(obj, cls, _rfm_use_params)
@@ -766,10 +772,6 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
                         os.path.dirname(inspect.getfile(cls))
                     )
 
-        # Attach the hooks to the pipeline stages
-        for stage in _PIPELINE_STAGES:
-            cls._add_hooks(stage)
-
         # Initialize the test
         obj.__rfm_init__(name, prefix)
         return obj
@@ -785,14 +787,15 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
             return ''
 
     @classmethod
-    def _add_hooks(cls, stage):
+    def _add_hooks(cls, stages):
         pipeline_hooks = cls._rfm_pipeline_hooks
-        fn = getattr(cls, stage)
-        new_fn = hooks.attach_hooks(pipeline_hooks)(fn)
-        setattr(cls, '_rfm_pipeline_fn_' + stage, new_fn)
+        for stage in stages:
+            fn = getattr(cls, stage)
+            new_fn = hooks.attach_hooks(pipeline_hooks)(fn)
+            setattr(cls, '_rfm_pipeline_fn_' + stage, new_fn)
 
     def __getattribute__(self, name):
-        if name in _PIPELINE_STAGES:
+        if name in super().__getattribute__('_rfm_pipeline_stages'):
             name = f'_rfm_pipeline_fn_{name}'
 
         return super().__getattribute__(name)
