@@ -1061,7 +1061,8 @@ class RegressionTest(RegressionMixin, jsonext.JSONSerializable):
         self.logger.debug('Setting up test paths')
         try:
             runtime = rt.runtime()
-            print(self.name, runtime.stage_prefix)
+            print('test', self.name, util.repr(self))
+            print('runtime', util.repr(runtime))
             self._stagedir = runtime.make_stagedir(
                 self.current_system.name, self._current_partition.name,
                 self._current_environ.name, self.name

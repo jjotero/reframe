@@ -837,7 +837,7 @@ def test_compile_fail_reschedule_busy_loop(async_runner, make_cases,
 
 
 @pytest.fixture
-def report_file(tmp_path, make_runner, dep_cases, common_exec_ctx):
+def report_file(make_runner, dep_cases, common_exec_ctx, tmp_path):
     runner = make_runner()
     runner.policy.keep_stage_files = True
     with timer() as tm:
@@ -873,12 +873,6 @@ def test_restore_session(report_file, make_runner,
     new_report = _generate_runreport(runner.stats.json(), *tm.timestamps())
     assert new_report['runs'][0]['num_cases'] == 1
     assert new_report['runs'][0]['testcases'][0]['name'] == 'T1'
-
-    import reframe.utility as util
-
-    if not os.path.exists(tmp_path / 'stage' / 'generic' / 'default' /
-                          'builtin' / 'T4' / '.rfm_testcase.json'):
-        print('==> restored:', util.repr(restored_cases))
 
     # Remove the test case dump file and retry
     os.remove(tmp_path / 'stage' / 'generic' / 'default' /
