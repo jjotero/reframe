@@ -60,7 +60,7 @@ def temp_runtime(tmp_path):
         options = options or {}
         options.update({'systems/prefix': str(tmp_path)})
         with rt.temp_runtime(config_file, system, options):
-            yield rt.runtime()
+            yield
 
     yield _temp_runtime
 

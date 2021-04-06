@@ -112,7 +112,7 @@ def temp_runtime(tmp_path):
         options = options or {}
         options.update({'systems/prefix': tmp_path})
         with rt.temp_runtime(site_config, system, options):
-            yield rt.runtime
+            yield
 
     yield _temp_runtime
 
