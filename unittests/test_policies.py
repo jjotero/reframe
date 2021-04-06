@@ -881,7 +881,8 @@ def test_restore_session(report_file, make_runner,
                   'builtin' / 'T4' / '.rfm_testcase.json')
     except OSError:
         import reframe.utility as util
-        print(util.repr(restored_cases))
+        print('==> restored_cases', util.repr(restored_cases))
+        print('==> dep_cases', util.repr(dep_cases))
 
     with pytest.raises(ReframeError, match=r'could not restore testcase'):
         report.restore_dangling(testgraph)
