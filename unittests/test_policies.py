@@ -820,6 +820,9 @@ def test_compile_fail_reschedule_main_loop(async_runner, make_cases,
     assert_runall(runner)
     assert num_checks == len(stats.failed())
 
+    with contextlib.suppress(StopIteration):
+        next(ctx)
+
 
 def test_compile_fail_reschedule_busy_loop(async_runner, make_cases,
                                            make_async_exec_ctx):
@@ -835,6 +838,8 @@ def test_compile_fail_reschedule_busy_loop(async_runner, make_cases,
     assert num_checks == stats.num_cases()
     assert_runall(runner)
     assert num_checks == len(stats.failed())
+    with contextlib.suppress(StopIteration):
+        next(ctx)
 
 
 @pytest.fixture
@@ -881,7 +886,6 @@ def test_restore_session(report_file, make_runner,
                   'builtin' / 'T4' / '.rfm_testcase.json')
     except OSError:
         import reframe.utility as util
-        print('==> restored_cases', util.repr(restored_cases))
         print('==> dep_cases', util.repr(dep_cases))
 
     with pytest.raises(ReframeError, match=r'could not restore testcase'):
