@@ -526,9 +526,24 @@ def test_extra_resources(HelloTest, testsys_system):
     assert expected_job_options == set(test.job.options)
 
 
-def test_pre_init_hook(local_exec_ctx):
+def test_unkown_pre_hook():
     with pytest.raises(ValueError):
-        @fixtures.custom_prefix('unittests/resources/checks')
+        class MyTest(rfm.RunOnlyRegressionTest):
+            @rfm.run_before('foo')
+            def prepare(self):
+                self.x = 1
+
+
+def test_unkown_post_hook():
+    with pytest.raises(ValueError):
+        class MyTest(rfm.RunOnlyRegressionTest):
+            @rfm.run_after('foo')
+            def prepare(self):
+                self.x = 1
+
+
+def test_pre_init_hook():
+    with pytest.raises(ValueError):
         class MyTest(rfm.RunOnlyRegressionTest):
             @rfm.run_before('init')
             def prepare(self):
@@ -537,29 +552,29 @@ def test_pre_init_hook(local_exec_ctx):
 
 def test_post_init_hook(local_exec_ctx):
     class _T0(rfm.RunOnlyRegressionTest):
-        x = variable(int, value=0)
-        y = variable(int, value=1)
+        x = variable(str, value='y')
+        y = variable(str, value='x')
 
         def __init__(self):
-            self.x = 1
+            self.x = 'x'
 
         @rfm.run_after('init')
         def prepare(self):
-            self.y += 1
+            self.y += 'y'
 
     class _T1(_T0):
         def __init__(self):
             super().__init__()
-            self.z = 3
+            self.z = 'z'
 
     t0 = _T0()
-    assert t0.x == 1
-    assert t0.y == 2
+    assert t0.x == 'x'
+    assert t0.y == 'xy'
 
     t1 = _T1()
-    assert t1.x == 1
-    assert t1.y == 2
-    assert t1.z == 3
+    assert t1.x == 'x'
+    assert t1.y == 'xy'
+    assert t1.z == 'z'
 
 
 def test_setup_hooks(HelloTest, local_exec_ctx):
